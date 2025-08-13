@@ -7,7 +7,7 @@ M.setup = function()
         create.add_task()
     end, { desc = "Test keymap mi_plugin" })
     vim.keymap.set("n", "<leader>lt", function()
-        list.view_tasks()
+        list.list_tasks()
     end, { desc = "Test keymap mi_plugin" })
 end
 

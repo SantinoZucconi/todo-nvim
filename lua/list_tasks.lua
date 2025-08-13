@@ -1,3 +1,4 @@
+local list = {}
 local has_telescope, pickers = pcall(require, "telescope.pickers")
 if not has_telescope then
   return
@@ -24,7 +25,7 @@ local function open_task_file()
     return tasks
 end
 
-local function list_tasks()
+function list.list_tasks()
   local tasks = open_task_file()
 
   pickers.new({}, {
@@ -35,16 +36,18 @@ local function list_tasks()
               return {
                   value = entry,
                   display = entry.title,
-                  ordinal = entry.title
+                  ordinal = entry.title,
               }
           end,
       },
       sorter = conf.generic_sorter({}),
       previewer = previewers.new_buffer_previewer {
           define_preview = function(self, entry, status)
-              local lines = vim.split(entry.value.description:gsub("\\n", "\n"), "\n")
+              local lines = vim.split(entry.value.description, "\n")
               vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, lines)
               vim.api.nvim_set_option_value("filetype", "markdown", { buf = self.state.bufnr })
+              vim.api.nvim_set_option_value("wrap", true, { win = self.state.winid })
+              vim.api.nvim_set_option_value("linebreak", true, { win = self.state.winid })
           end
       },
       attach_mappings = function(prompt_bufnr, map)
@@ -55,9 +58,8 @@ local function list_tasks()
           end)
           return true
       end,
+      initial_mode = "normal",
   }):find()
 end
 
-return {
-  list_tasks = list_tasks
-}
+return list
