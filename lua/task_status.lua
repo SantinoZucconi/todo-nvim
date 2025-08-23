@@ -1,11 +1,11 @@
 local TaskStatus = {
-    Pending = "pending",
-    InProgress = "in_progress",
-    Done = "done",
+    ToDo = "To Do",
+    InProgress = "In Progress",
+    Done = "Done",
 }
 
 local TaskTransitions = {
-    [TaskStatus.Pending] = TaskStatus.InProgress,
+    [TaskStatus.ToDo] = TaskStatus.InProgress,
     [TaskStatus.InProgress] = TaskStatus.Done,
     [TaskStatus.Done] = nil,
 }

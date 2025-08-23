@@ -84,4 +84,19 @@ function lib.save_task(title_buf, desc_buf)
     end
 end
 
+function lib.open_task_file()
+    local tasks = {}
+    local file = io.open(".tasks.jsonl", "r")
+    if file then
+        for line in file:lines() do
+            local ok, decoded = pcall(vim.fn.json_decode, line)
+            if ok and decoded then
+                table.insert(tasks, decoded)
+            end
+        end
+        file:close()
+    end
+    return tasks
+end
+
 return lib

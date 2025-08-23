@@ -1,5 +1,6 @@
 local list = {}
 local has_telescope, pickers = pcall(require, "telescope.pickers")
+local lib = require("lib")
 if not has_telescope then
   return
 end
@@ -10,21 +11,6 @@ local previewers = require("telescope.previewers")
 local actions = require("telescope.actions")
 local action_state = require("telescope.actions.state")
 
-local function open_task_file()
-    local tasks = {}
-    local file = io.open(".tasks.jsonl", "r")
-    if file then
-        for line in file:lines() do
-            local ok, decoded = pcall(vim.fn.json_decode, line)
-            if ok and decoded then
-                table.insert(tasks, decoded)
-            end
-        end
-        file:close()
-    end
-    return tasks
-end
-
 local function make_separator(label, width)
     local total = width - #label
     local first_half = math.floor(total / 2) - 3
@@ -33,7 +19,7 @@ local function make_separator(label, width)
 end
 
 function list.list_tasks()
-  local tasks = open_task_file()
+  local tasks = lib.open_task_file()
 
   pickers.new({}, {
       prompt_title = "Tasks",
