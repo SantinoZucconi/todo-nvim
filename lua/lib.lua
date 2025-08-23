@@ -1,4 +1,5 @@
 local config = require("config")
+local task_status = require("task_status")
 local lib = {}
 
 function lib.create_title_window(buf)
@@ -70,6 +71,7 @@ function lib.save_task(title_buf, desc_buf)
     local task = {
         title = title,
         description = desc,
+        status = task_status.Pending,
         created_at = os.date("%Y-%m-%d %H:%M:%S"),
     }
 
