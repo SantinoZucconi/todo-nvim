@@ -26,7 +26,6 @@ local function create_kanban_column(buf, state, tasks, width, height, row, col)
             end_col = #line_text
         })
 
-        local sep = string.rep("─", width)
         vim.api.nvim_buf_set_lines(buf, -1, -1, false, {sep})
         line_nr = vim.api.nvim_buf_line_count(buf) - 1
         vim.api.nvim_buf_set_extmark(buf, ns_kanban, line_nr, 0, {
@@ -91,8 +90,6 @@ function kanban.open_kanban_board()
     for _, t in ipairs(all_tasks) do
         table.insert(col_tasks[t.status] or col_tasks[task_status.ToDo.title], t.title)
     end
-
-    print(col_tasks)
 
     for i, state in ipairs(states) do
         kanban.buffers[state.title] = create_buffer(state.title)

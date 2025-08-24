@@ -16,11 +16,21 @@ local TaskStatus = {
 local TaskTransitions = {
     [TaskStatus.ToDo] = TaskStatus.InProgress,
     [TaskStatus.InProgress] = TaskStatus.Done,
-    [TaskStatus.Done] = nil,
+    [TaskStatus.Done] = TaskStatus.ToDo,
+}
+
+local TaskStatusMap = {
+    ["To Do"] = TaskStatus.ToDo,
+    ["In Progress"] = TaskStatus.InProgress,
+    ["Done"] = TaskStatus.Done
 }
 
 function TaskStatus.next(current)
     return TaskTransitions[current]
+end
+
+function TaskStatus.map_string(status)
+    return TaskStatusMap[status]
 end
 
 return TaskStatus

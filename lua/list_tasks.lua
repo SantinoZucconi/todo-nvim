@@ -1,6 +1,7 @@
 local list = {}
 local has_telescope, pickers = pcall(require, "telescope.pickers")
 local lib = require("lib")
+local task_status = require("task_status")
 if not has_telescope then
   return
 end
@@ -20,7 +21,10 @@ end
 
 function list.list_tasks()
   local tasks = lib.open_task_file()
-
+  local task_hash = {}
+  for _, task in ipairs(tasks) do
+    task_hash[task.id] = task
+  end
   pickers.new({}, {
       prompt_title = "Tasks",
       layout_strategy = "horizontal",
@@ -28,12 +32,13 @@ function list.list_tasks()
           width = 0.6,
           height = 0.8,
           preview_width = 0.7,
-          -- prompt_position = "top", -- opcional
+          prompt_position = "top",
       },
       finder = finders.new_table {
           results = tasks,
           entry_maker = function(entry)
               return {
+                  id = entry.id,
                   value = entry,
                   display = entry.title,
                   status = entry.status,
@@ -79,26 +84,23 @@ function list.list_tasks()
 
           actions.select_default:replace(function()
               local selection = get_selection()
-              print("Ver task: " .. selection.value.title)
-              close_picker()
-          end)
-
-          map("n", "a", function()
-              local selection = get_selection()
-              close_picker()
               print("Editar task: " .. selection.value.title)
+              close_picker()
           end)
 
           map("n", "d", function()
               local selection = get_selection()
+              task_hash[selection.id] = nil
+              lib.rewrite_file(task_hash)
               close_picker()
-              print("Borrar task: " .. selection.value.title)
           end)
 
           map("n", "s", function()
               local selection = get_selection()
+              local status = task_status.map_string(task_hash[selection.id].status)
+              task_hash[selection.id].status = task_status.next(status).title
+              lib.rewrite_file(task_hash)
               close_picker()
-              print("Cambiar estado de: " .. selection.value.title)
           end)
           return true
       end,

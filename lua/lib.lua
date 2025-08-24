@@ -68,7 +68,9 @@ function lib.save_task(title_buf, desc_buf)
         return
     end
 
+    local id = vim.fn.sha256(vim.fn.reltimefloat(vim.fn.reltime()))
     local task = {
+        id = id,
         title = title,
         description = desc,
         status = task_status.ToDo.title,
@@ -78,6 +80,18 @@ function lib.save_task(title_buf, desc_buf)
     local file = io.open(".tasks.jsonl", "a")
     if file then
         file:write(vim.fn.json_encode(task) .. "\n")
+        file:close()
+    else
+        print("Error al abrir .tasks.jsonl")
+    end
+end
+
+function lib.rewrite_file(tasks)
+    local file = io.open(".tasks.jsonl", "w")
+    if file then
+        for _, task in pairs(tasks) do
+            file:write(vim.fn.json_encode(task) .. "\n")
+        end
         file:close()
     else
         print("Error al abrir .tasks.jsonl")
