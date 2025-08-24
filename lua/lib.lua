@@ -71,7 +71,7 @@ function lib.save_task(title_buf, desc_buf)
     local task = {
         title = title,
         description = desc,
-        status = task_status.Pending,
+        status = task_status.ToDo.title,
         created_at = os.date("%Y-%m-%d %H:%M:%S"),
     }
 

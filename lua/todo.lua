@@ -1,6 +1,8 @@
 local create = require("create_tasks")
 local list = require("list_tasks")
 local kanban = require("create_kanban")
+local highlights = require("highlights")
+highlights.setup()
 local M = {}
 
 M.setup = function()

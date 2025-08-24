@@ -61,11 +61,11 @@ function list.list_tasks()
               if entry.value.description then
                   vim.list_extend(lines, vim.split(entry.value.description, "\n"))
               end
-
               vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, lines)
               vim.api.nvim_set_option_value("filetype", "markdown", { buf = self.state.bufnr })
               vim.api.nvim_set_option_value("wrap", true, { win = self.state.winid })
               vim.api.nvim_set_option_value("linebreak", true, { win = self.state.winid })
+              vim.api.nvim_set_hl(0, "TelescopePreviewNormal", { fg = "#ffffff", bg = nil })
           end
       },
       attach_mappings = function(prompt_bufnr, map)

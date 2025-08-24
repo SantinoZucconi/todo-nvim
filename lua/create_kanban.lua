@@ -5,24 +5,20 @@ local kanban = {
     windows = {}
 }
 
-vim.api.nvim_set_hl(0, task_status.ToDo, { fg = "#ff5555", bold = true })
-vim.api.nvim_set_hl(0, task_status.InProgress, { fg = "#f1fa8c", bold = true })
-vim.api.nvim_set_hl(0, task_status.Done, { fg = "#50fa7b", bold = true })
-vim.api.nvim_set_hl(0, "separator", { fg = "#444444" })
 local ns_kanban = vim.api.nvim_create_namespace("kanban")
+
+vim.api.nvim_set_hl(0, "separator", { fg = "#444444" })
 
 local function create_kanban_column(buf, state, tasks, width, height, row, col)
     for i, task in ipairs(tasks) do
-        -- insert task
         vim.api.nvim_buf_set_lines(buf, -1, -1, false, {task})
         local line_nr = vim.api.nvim_buf_line_count(buf) - 1
         local line_text = vim.api.nvim_buf_get_lines(buf, line_nr, line_nr+1, false)[1]
         vim.api.nvim_buf_set_extmark(buf, ns_kanban, line_nr, 0, {
-            hl_group = state,
+            hl_group = state.nameid,
             end_col = #line_text
         })
 
-        -- insert separator
         local sep = string.rep("─", width)
         vim.api.nvim_buf_set_lines(buf, -1, -1, false, {sep})
         line_nr = vim.api.nvim_buf_line_count(buf) - 1
@@ -40,7 +36,7 @@ local function create_kanban_column(buf, state, tasks, width, height, row, col)
         col = col,
         style = "minimal",
         border = "rounded",
-        title = state,
+        title = state.title,
         title_pos = "center"
     })
 
@@ -80,21 +76,23 @@ function kanban.open_kanban_board()
 
     local states = {task_status.ToDo, task_status.InProgress, task_status.Done}
     local col_tasks = {
-        [task_status.ToDo] = {},
-        [task_status.InProgress] = {},
-        [task_status.Done] = {}
+        [task_status.ToDo.title] = {},
+        [task_status.InProgress.title] = {},
+        [task_status.Done.title] = {}
     }
 
     for _, t in ipairs(all_tasks) do
-        table.insert(col_tasks[t.status] or col_tasks[task_status.ToDo], t.title)
+        table.insert(col_tasks[t.status] or col_tasks[task_status.ToDo.title], t.title)
     end
 
+    print(col_tasks)
+
     for i, state in ipairs(states) do
-        kanban.buffers[state] = create_buffer(state)
+        kanban.buffers[state.title] = create_buffer(state.title)
         local win = create_kanban_column(
-            kanban.buffers[state],
+            kanban.buffers[state.title],
             state,
-            col_tasks[state],
+            col_tasks[state.title],
             col_width,
             board_height,
             start_row,
