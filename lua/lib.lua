@@ -105,7 +105,7 @@ function lib.open_task_file()
         for line in file:lines() do
             local ok, decoded = pcall(vim.fn.json_decode, line)
             if ok and decoded then
-                table.insert(tasks, decoded)
+                tasks[decoded.id] = decoded
             end
         end
         file:close()

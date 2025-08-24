@@ -2,6 +2,7 @@ local list = {}
 local has_telescope, pickers = pcall(require, "telescope.pickers")
 local lib = require("lib")
 local task_status = require("task_status")
+local edit_task = require("edit_task")
 if not has_telescope then
   return
 end
@@ -21,9 +22,9 @@ end
 
 function list.list_tasks()
   local tasks = lib.open_task_file()
-  local task_hash = {}
-  for _, task in ipairs(tasks) do
-    task_hash[task.id] = task
+  local tasks_array = {}
+  for _, task in pairs(tasks) do
+      table.insert(tasks_array, task)
   end
   pickers.new({}, {
       prompt_title = "Tasks",
@@ -35,7 +36,7 @@ function list.list_tasks()
           prompt_position = "top",
       },
       finder = finders.new_table {
-          results = tasks,
+          results = tasks_array,
           entry_maker = function(entry)
               return {
                   id = entry.id,
@@ -84,22 +85,22 @@ function list.list_tasks()
 
           actions.select_default:replace(function()
               local selection = get_selection()
-              print("Editar task: " .. selection.value.title)
               close_picker()
+              edit_task.edit_task(selection.id)
           end)
 
           map("n", "d", function()
               local selection = get_selection()
-              task_hash[selection.id] = nil
-              lib.rewrite_file(task_hash)
               close_picker()
+              tasks[selection.id] = nil
+              lib.rewrite_file(tasks)
           end)
 
           map("n", "s", function()
               local selection = get_selection()
-              local status = task_status.map_string(task_hash[selection.id].status)
-              task_hash[selection.id].status = task_status.next(status).title
-              lib.rewrite_file(task_hash)
+              local status = task_status.map_string(tasks[selection.id].status)
+              tasks[selection.id].status = task_status.next(status).title
+              lib.rewrite_file(tasks)
               close_picker()
           end)
           return true

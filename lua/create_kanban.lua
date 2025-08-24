@@ -17,7 +17,7 @@ local function create_kanban_column(buf, state, tasks, width, height, row, col)
         hl_group = "separator",
         end_col = #sep
     })
-    for _, task in ipairs(tasks) do
+    for _, task in pairs(tasks) do
         vim.api.nvim_buf_set_lines(buf, -1, -1, false, {task})
         line_nr = vim.api.nvim_buf_line_count(buf) - 1
         local line_text = vim.api.nvim_buf_get_lines(buf, line_nr, line_nr+1, false)[1]
@@ -87,7 +87,7 @@ function kanban.open_kanban_board()
         [task_status.Done.title] = {}
     }
 
-    for _, t in ipairs(all_tasks) do
+    for _, t in pairs(all_tasks) do
         table.insert(col_tasks[t.status] or col_tasks[task_status.ToDo.title], t.title)
     end
 
