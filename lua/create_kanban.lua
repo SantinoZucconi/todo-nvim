@@ -1,12 +1,18 @@
 local lib = require("lib")
-local config = require("config")
 local task_status = require("task_status")
-local kanban = {}
+local kanban = {
+    buffers = {},
+    windows = {}
+}
 
-local function create_kanban_column(title, tasks, width, height, row, col)
-    local buf = vim.api.nvim_create_buf(false, true)
-    for _, task in ipairs(tasks) do
-        vim.api.nvim_buf_set_lines(buf, -1, -1, false, {task})
+local function create_kanban_column(buf, title, tasks, width, height, row, col)
+    for i, task in ipairs(tasks) do
+        if (i == 1) then
+            vim.api.nvim_buf_set_lines(buf, 0, -1, false, {task})
+        else
+            vim.api.nvim_buf_set_lines(buf, -1, -1, false, {task})
+        end
+        vim.api.nvim_buf_set_lines(buf, -1, -1, false, {string.rep("─", width)})
     end
 
     local win = vim.api.nvim_open_win(buf, false, {
@@ -21,7 +27,26 @@ local function create_kanban_column(title, tasks, width, height, row, col)
         title_pos = "center"
     })
 
-    return buf, win
+    vim.api.nvim_set_option_value("filetype", "markdown", { buf = buf})
+    vim.api.nvim_set_option_value("wrap", true, { win = win })
+    vim.api.nvim_set_option_value("linebreak", true, { win = win })
+    vim.api.nvim_set_current_win(win)
+    return win
+end
+
+local function create_buffer(title)
+    local buf = vim.api.nvim_create_buf(false, true)
+    vim.api.nvim_buf_set_name(buf, vim.fn.tempname() .. "-" .. title)
+    return buf
+end
+
+local close_fn = function()
+    lib.close_win_if_valid(kanban.windows[task_status.ToDo])
+    lib.close_win_if_valid(kanban.windows[task_status.InProgress])
+    lib.close_win_if_valid(kanban.windows[task_status.Done])
+    lib.close_buf_if_valid(kanban.windows[task_status.ToDo])
+    lib.close_buf_if_valid(kanban.windows[task_status.InProgress])
+    lib.close_buf_if_valid(kanban.windows[task_status.Done])
 end
 
 function kanban.open_kanban_board()
@@ -48,7 +73,9 @@ function kanban.open_kanban_board()
     end
 
     for i, state in ipairs(states) do
-        create_kanban_column(
+        kanban.buffers[state] = create_buffer(state)
+        local win = create_kanban_column(
+            kanban.buffers[state],
             state,
             col_tasks[state],
             col_width,
@@ -56,7 +83,14 @@ function kanban.open_kanban_board()
             start_row,
             start_col + (i-1)* (col_width + 2)
         )
+        kanban.windows[state] = win
     end
+    for _, buf in pairs(kanban.buffers) do
+        vim.keymap.set("n", "q", close_fn, { buffer = buf })
+    end
+    vim.api.nvim_create_autocmd("WinClosed", {
+        callback = close_fn
+    })
 end
 
 return kanban
