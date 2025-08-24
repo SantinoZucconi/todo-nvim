@@ -12,7 +12,7 @@ function lib.create_title_window(buf)
         col = win_config.col,
         style = "minimal",
         border = "rounded",
-        title = " Título ",
+        title = " Title ",
         title_pos = "left"
     })
     return title_win
@@ -28,7 +28,7 @@ function lib.create_desc_window(buf)
         col = win_config.col,
         style = "minimal",
         border = "rounded",
-        title = " Descripción ",
+        title = " Description ",
         title_pos = "left"
     })
     return desc_win

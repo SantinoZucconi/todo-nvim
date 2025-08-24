@@ -10,9 +10,16 @@ local ns_kanban = vim.api.nvim_create_namespace("kanban")
 vim.api.nvim_set_hl(0, "separator", { fg = "#444444" })
 
 local function create_kanban_column(buf, state, tasks, width, height, row, col)
-    for i, task in ipairs(tasks) do
+    local sep = string.rep("─", width)
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, {sep})
+    local line_nr = 0
+    vim.api.nvim_buf_set_extmark(buf, ns_kanban, line_nr, 0, {
+        hl_group = "separator",
+        end_col = #sep
+    })
+    for _, task in ipairs(tasks) do
         vim.api.nvim_buf_set_lines(buf, -1, -1, false, {task})
-        local line_nr = vim.api.nvim_buf_line_count(buf) - 1
+        line_nr = vim.api.nvim_buf_line_count(buf) - 1
         local line_text = vim.api.nvim_buf_get_lines(buf, line_nr, line_nr+1, false)[1]
         vim.api.nvim_buf_set_extmark(buf, ns_kanban, line_nr, 0, {
             hl_group = state.nameid,
