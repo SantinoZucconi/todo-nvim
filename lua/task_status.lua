@@ -1,6 +1,6 @@
 local TaskStatus = {
-    ToDo = "To Do",
-    InProgress = "In Progress",
+    ToDo = "ToDo",
+    InProgress = "InProgress",
     Done = "Done",
 }
 

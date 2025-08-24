@@ -5,14 +5,31 @@ local kanban = {
     windows = {}
 }
 
-local function create_kanban_column(buf, title, tasks, width, height, row, col)
+vim.api.nvim_set_hl(0, task_status.ToDo, { fg = "#ff5555", bold = true })
+vim.api.nvim_set_hl(0, task_status.InProgress, { fg = "#f1fa8c", bold = true })
+vim.api.nvim_set_hl(0, task_status.Done, { fg = "#50fa7b", bold = true })
+vim.api.nvim_set_hl(0, "separator", { fg = "#444444" })
+local ns_kanban = vim.api.nvim_create_namespace("kanban")
+
+local function create_kanban_column(buf, state, tasks, width, height, row, col)
     for i, task in ipairs(tasks) do
-        if (i == 1) then
-            vim.api.nvim_buf_set_lines(buf, 0, -1, false, {task})
-        else
-            vim.api.nvim_buf_set_lines(buf, -1, -1, false, {task})
-        end
-        vim.api.nvim_buf_set_lines(buf, -1, -1, false, {string.rep("─", width)})
+        -- insert task
+        vim.api.nvim_buf_set_lines(buf, -1, -1, false, {task})
+        local line_nr = vim.api.nvim_buf_line_count(buf) - 1
+        local line_text = vim.api.nvim_buf_get_lines(buf, line_nr, line_nr+1, false)[1]
+        vim.api.nvim_buf_set_extmark(buf, ns_kanban, line_nr, 0, {
+            hl_group = state,
+            end_col = #line_text
+        })
+
+        -- insert separator
+        local sep = string.rep("─", width)
+        vim.api.nvim_buf_set_lines(buf, -1, -1, false, {sep})
+        line_nr = vim.api.nvim_buf_line_count(buf) - 1
+        vim.api.nvim_buf_set_extmark(buf, ns_kanban, line_nr, 0, {
+            hl_group = "separator",
+            end_col = #sep
+        })
     end
 
     local win = vim.api.nvim_open_win(buf, false, {
@@ -23,7 +40,7 @@ local function create_kanban_column(buf, title, tasks, width, height, row, col)
         col = col,
         style = "minimal",
         border = "rounded",
-        title = title,
+        title = state,
         title_pos = "center"
     })
 
